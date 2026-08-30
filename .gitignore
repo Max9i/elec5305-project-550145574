@@ -1,0 +1,15 @@
+# Generated and local files
+__pycache__/
+*.py[cod]
+.venv/
+.env
+*.asv
+*.m~
+.DS_Store
+Thumbs.db
+
+# Large experiment artifacts (keep documentation)
+data/*
+!data/README.md
+results/*
+!results/README.md
