@@ -8,8 +8,7 @@ __pycache__/
 .DS_Store
 Thumbs.db
 
-# Large experiment artifacts (keep documentation)
+# Raw/anonymised audio and model caches stay local; the fixed trial lists are committed
 data/*
 !data/README.md
-results/*
-!results/README.md
+!data/lists/
