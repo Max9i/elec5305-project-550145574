@@ -47,7 +47,10 @@ def libri(utt):
 
 
 def load(path):
-    return librosa.load(path, sr=SR)[0]  # mono float32, resampled to 16 kHz
+    """Mono float32 at 16 kHz, scaled to a fixed RMS: WavLM-SV's feature extractor does not normalise
+    its input (an utterance vs. itself at -26 dB: cosine 0.985), and anonymisers change the level."""
+    x = librosa.load(path, sr=SR)[0]
+    return 0.05 * x / (np.sqrt(np.mean(x ** 2)) + 1e-9)
 
 
 def ecapa():

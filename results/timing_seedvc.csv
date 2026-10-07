@@ -1,0 +1,4 @@
+condition,audio_s,out_s,proc_s,rtf,clipped_utts
+seedvc_cfg0.7,3142.99,3140.73,796.48,0.2534,337
+seedvc_cfg0.0,3142.99,3140.73,816.52,0.2598,0
+seedvc_cfg1.0,3142.99,3140.73,820.01,0.2609,396

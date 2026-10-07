@@ -2,47 +2,37 @@
 
 Classical LPC/McAdams anonymiser (M2). Needs MATLAB R2026a and the Signal Processing Toolbox (`lpc`).
 
-## Interface expected by the Python evaluation
+| File | Purpose |
+|---|---|
+| `mcadams_anon.m` | `y = mcadams_anon(x, fs, alpha)`: framing, LPC, residual, pole warping, resynthesis, overlap-add |
+| `mcadams_warp.m` | `aNew = mcadams_warp(a, alpha)`: moves the complex LPC poles from angle φ to φ^α, keeping their radius |
+| `test_mcadams.m` | self-check: radii kept, angles mapped to φ^α, α = 1 reconstructs the input |
+| `run_mcadams.m` | anonymises every trial utterance for α = 0.9, 0.8, 0.7, 0.6 → `data/anon/mcadams_<α>/<utt>.wav` and `results/timing_mcadams.csv` |
+| `demo_mcadams.m` | example analysis of one utterance → `samples/<utt>_*.wav` and `results/figures/mcadams_<utt>.png` |
 
-- `y = mcadams_anon(x, fs, alpha)`: `x` is mono speech (column vector) at `fs` = 16000 Hz, `alpha` is
-  the McAdams coefficient (1 = no change). `y` has the same length as `x`.
-- Batch run: for each α in {0.9, 0.8, 0.7} (optionally 0.6), read every utterance in
-  `data/lists/trials.csv` from `data/raw/LibriSpeech/test-clean/<spk>/<chapter>/<utt>.flac` and write
-  `data/anon/mcadams_<α>/<utt>.wav` at 16 kHz. Record the total processing time and audio duration
-  per α for the processing-time comparison.
-- Then evaluate, e.g. `python python/evaluate.py mcadams_0.8 data/anon/mcadams_0.8`.
+Run from the repository root:
 
-## Algorithm (README §4.1)
-
-Per frame (20 ms window, 10 ms hop, LPC order 20):
-
-1. windowed frame → `a = lpc(frame, 20)`
-2. residual `e = filter(a, 1, frame)`
-3. poles `r = roots(a)`
-4. complex poles with 0 < φ < π: keep |r| and set φ' = φ^α, clamped to (0, π). Rebuild the
-   conjugates from the new upper-half poles. Leave real poles unchanged.
-5. `a_new = real(poly(r_new))`
-6. resynthesis `filter(1, a_new, e)` → synthesis window → overlap-add
-
-## Pitfalls
-
-- **α = 1 must give back the input** (see the acceptance test below). If it does not, the bug is in
-  the windowing or overlap-add, not in McAdams. Use √Hann as both the analysis and the synthesis
-  window, scaled so that the overlapped product of the two sums to 1 at a 10 ms hop (this is what
-  the VoicePrivacy baseline does).
-- Pair the conjugate poles explicitly: take the poles with `imag(r) > 0`, transform them, and append
-  their conjugates. Do not assume `roots` returns each pair next to each other.
-- φ is in radians, so φ^α has a fixed point at φ = 1 rad, i.e. fs/2π ≈ 2.55 kHz. With α < 1,
-  formants below about 2.5 kHz move up and formants above it move down. This is worth explaining
-  in the report.
-- Silent frames make `lpc` return NaN. Add a tiny eps to the frame or skip it.
-- `audiowrite` clips at ±1. Scale the output to the input's peak before writing.
-
-## Acceptance test
-
-```matlab
-[x, fs] = audioread('data/raw/LibriSpeech/test-clean/1089/134686/1089-134686-0000.flac');
-y = mcadams_anon(x, fs, 1);
-k = 400:numel(x) - 400;  % ignore the edge frames
-fprintf('alpha = 1: SNR = %.1f dB\n', 10*log10(sum(x(k).^2) / sum((x(k) - y(k)).^2)))  % expect > 30 dB
+```bash
+matlab -batch "cd matlab; test_mcadams"
+matlab -batch "cd matlab; run_mcadams"
+matlab -batch "cd matlab; demo_mcadams('121-127105-0006')"
 ```
+
+Then evaluate each α, e.g. `python python/evaluate.py mcadams_0.8 data/anon/mcadams_0.8`.
+
+## Implementation notes
+
+- 20 ms frames, 10 ms hop and LPC order 20 (autocorrelation method), as in the VoicePrivacy McAdams
+  baseline.
+- √Hann analysis and synthesis windows. Their product is a periodic Hann window, which overlap-adds
+  to exactly 1 at a 50 % hop. The signal is zero-padded by one hop at the start, so the first
+  samples also lie in two frames. α = 1 therefore reconstructs the input up to rounding error
+  (SNR 234 dB in `test_mcadams`).
+- The conjugate poles are rebuilt from the transformed upper-half poles instead of being paired by
+  position.
+- All-zero frames have no LPC model and are left silent.
+- The output is scaled to the input's peak, as in the reference implementation.
+- Checked against a Python re-implementation of the VoicePrivacy reference (Burg LPC, symmetric
+  Hann window): on both demo utterances the outputs match (waveform correlation ≥ 0.999, same crest
+  factor).
+- Speed: about 0.02–0.03 s of CPU time per second of audio (`results/timing_mcadams.csv`).

@@ -20,28 +20,71 @@ and how much linguistic and acoustic utility is lost to get that privacy.
 |---|---|
 | M0 Repo setup, revised research question, README | ✅ done |
 | M1 Evaluation dataset + original-speech attacker baseline | ✅ done |
-| M2 MATLAB LPC/McAdams anonymiser | ⬜ next |
-| M3 Classical privacy–utility trade-off | ⬜ |
-| M4 Seed-VC anonymisation-only mode | ⬜ |
-| M5 Attacker comparison (main result) | ⬜ |
+| M2 MATLAB LPC/McAdams anonymiser | ✅ done |
+| M3 Classical privacy–utility trade-off | ✅ done |
+| M4 Seed-VC anonymisation-only mode | ✅ done |
+| M5 Attacker comparison (main result) | ⬜ next |
 | M6 Privacy-failure analysis | ⬜ |
 | M7 One optional extension | ⬜ |
 | M8 Report, figures, audio demos, GitHub Pages | ⬜ |
 
-**Next step:** M2. Implement `matlab/mcadams_anon.m` (interface, pitfalls
-and the α = 1 acceptance test are in `matlab/README.md`), then evaluate
-each α with `python/evaluate.py`. In parallel, set up Seed-VC in its own
-environment (M4).
+**Next step:** M5. Plot Figure 1 (privacy–utility frontier, one panel per
+attacker) and Figure 2 (ECAPA EER vs. WavLM-SV EER) from the tables below,
+then answer whether both attackers give the same conclusion and ranking.
 
-**Results so far** (`results/summary.csv`; 400 genuine + 7600 impostor pairs)
+**Results so far.** Privacy and utility (`results/summary.csv`; 400
+genuine + 7600 impostor pairs; ΔWER = WER − WER(original); RTF = processing
+time per second of audio, McAdams on CPU, Seed-VC on GPU):
 
-| Condition | ECAPA EER (%) | WavLM-SV EER (%) | WER (%) |
-|---|---|---|---|
-| original | 0.25 | 3.26 | 1.73 |
+| Condition | ECAPA EER (%) | WavLM-SV EER (%) | WER (%) | ΔWER | RTF |
+|---|---|---|---|---|---|
+| original | 0.25 | 3.47 | 1.72 | – | – |
+| McAdams α = 0.9 | 0.50 | 5.25 | 1.80 | +0.08 | 0.024 |
+| McAdams α = 0.8 | 7.97 | 17.49 | 2.11 | +0.39 | 0.022 |
+| McAdams α = 0.7 | 17.25 | 31.55 | 2.93 | +1.21 | 0.022 |
+| McAdams α = 0.6 | 29.75 | 40.25 | 9.35 | +7.63 | 0.026 |
+| Seed-VC CFG 0.0 | 46.29 | 47.05 | 5.13 | +3.41 | 0.26 |
+| Seed-VC CFG 0.7 (default) | 43.75 | 48.00 | 2.43 | +0.71 | 0.25 |
+| Seed-VC CFG 1.0 | 44.30 | 47.53 | 2.31 | +0.59 | 0.26 |
 
-On original speech both attackers clearly separate genuine from impostor
-trials (`results/figures/scores_original.png`). ECAPA is the stronger one
-here (d′ 7.3 vs. 2.6).
+Acoustic change against the original (`results/acoustics.csv`; F0
+measures are medians over utterances, the others means):
+
+| Condition | F0 shift (semitones) | F0 contour correlation | Voiced frames kept | LPC envelope distance (dB) |
+|---|---|---|---|---|
+| McAdams α = 0.9 | 0.00 | 0.997 | 72 % | 9.3 |
+| McAdams α = 0.8 | 0.00 | 0.996 | 48 % | 15.7 |
+| McAdams α = 0.7 | 0.00 | 0.991 | 20 % | 19.1 |
+| McAdams α = 0.6 | 0.00 | 0.974 | 7 % | 20.3 |
+| Seed-VC CFG 0.0 | −3.43 | 0.450 | 50 % | 7.8 |
+| Seed-VC CFG 0.7 | −3.15 | 0.421 | 58 % | 8.2 |
+| Seed-VC CFG 1.0 | −2.95 | 0.367 | 58 % | 8.6 |
+
+First observations (to be checked properly in M5/M6):
+- On original speech both attackers clearly separate genuine from impostor
+  trials (`results/figures/scores_original.png`). ECAPA is the stronger one
+  (d′ 7.3 vs. 2.6).
+- **McAdams privacy depends on the attacker.** At every α, WavLM-SV reports
+  much more privacy than ECAPA. At α = 0.8, ECAPA still reliably identifies
+  31 of 40 speakers (≥ 8 of 10 trials above the 95th percentile of impostor
+  scores), WavLM-SV only 12. At α = 0.6, ECAPA still identifies 11 speakers
+  (EER 30 %, far from chance). A privacy claim based on WavLM-SV alone would
+  overstate McAdams' protection.
+- **Seed-VC privacy does not depend on the attacker here.** Both attackers
+  are close to chance (EER 44–48 %) and identify 0 of 40 speakers. Against
+  both attackers, Seed-VC at CFG 0.7 or 1.0 gives more privacy at a smaller
+  WER cost than any McAdams setting with real privacy (α ≤ 0.7). McAdams
+  α = 0.9 and 0.8 cost less WER, but give little privacy.
+- Along the Seed-VC axis, intelligibility CFG 0.0 costs WER (+3.4). It buys
+  about 2.5 EER points against ECAPA and none against WavLM-SV. CFG 0.7 and
+  1.0 are almost the same.
+- McAdams keeps F0 and intonation exactly where F0 can still be measured,
+  but voicing collapses as α decreases: harmonic structure is destroyed
+  (see §4.1). Seed-VC moves F0 down by about 3 semitones and keeps
+  intonation only weakly.
+- Seed-VC changes the LPC envelope *less* than even McAdams α = 0.9, yet
+  gives far more privacy. Envelope change alone does not explain privacy
+  across methods. F0, intonation and fine spectral detail matter too.
 
 Code is pushed as each milestone is finished, not saved up for Weeks 12–13.
 
@@ -147,6 +190,28 @@ radians). The conjugate pole is mirrored. Real poles are left unchanged.
   structure are kept. The report must explain these physical effects rather
   than treat McAdams as a black-box function.
 
+**What α < 1 does (measured in M2, see `results/figures/mcadams_*.png`)**
+- φ ↦ φ^α has a fixed point at φ = 1 rad = fs/2π ≈ 2.55 kHz. For α < 1,
+  every pole angle moves towards it: F1 and F2 (below 2.55 kHz) move up and
+  higher formants move down.
+- No formant pole is left above (fs/2π)·π^α = 7.1 / 6.4 / 5.7 / 5.1 kHz for
+  α = 0.9 / 0.8 / 0.7 / 0.6, so energy above that drops sharply.
+- Pole radii (formant bandwidths) are kept, so the filter stays stable.
+- When the warped poles crowd together, the power gain of 1/A′(z) rises
+  sharply in some frames. The method has no per-frame gain correction, so
+  these frames become loud bursts. After peak normalisation the rest of the
+  utterance is quieter: for a male utterance at α = 0.8 the crest factor
+  goes from 7.6 to 17.2. This is a property of the method, not an
+  implementation bug: a Python re-implementation of the VoicePrivacy
+  reference gives the same output.
+- The residual keeps the pitch epochs, so F0 is unchanged wherever it can
+  be measured. But as all poles move up towards 2.55 kHz, the low harmonics
+  lose their resonance support, and noise in the residual becomes as strong
+  as the periodic part. Measured voicing drops from 72 % of the original's
+  voiced frames (α = 0.9) to 7 % (α = 0.6). In a loud vowel of a male
+  utterance, the normalised autocorrelation at the pitch period drops from
+  0.86 to 0.74 (α = 0.8) and 0.23 (α = 0.6).
+
 **Planned settings** (initial values, to confirm once the code works)
 
 | Parameter | Initial value | Note |
@@ -177,22 +242,53 @@ baseline with no target-speaker choices involved.
 **one** to vary (e.g. low / medium / high) and only if it is meaningful in
 anonymisation-only mode. Keep all the others fixed.
 
+**What anonymisation-only actually does (from the code, M4).** With
+`anonymization_only` set, the diffusion model (`modules/v2/cfm.py`,
+`random_voice` branch) receives a zeroed reference prompt and a zeroed
+speaker-style vector in both classifier-free-guidance branches. The
+guidance is
+`(1 + intelligibility_cfg_rate)·f(content) − intelligibility_cfg_rate·f(no content)`.
+So:
+- `similarity_cfg_rate` has **no effect** in this mode;
+- `intelligibility_cfg_rate` is the only guidance knob left, and it is the
+  controlled axis: **0.0 / 0.7 (default) / 1.0**, the ends and default of
+  the recommended 0–1 range;
+- style conversion (the AR model) stays **off**, so the output keeps the
+  source timing and duration.
+
+The reference audio is still required by the API and its content tokens
+are still prepended to the conditioning sequence. To keep other speakers
+out completely, 1 s of digital silence is used as the reference.
+
 **Output checks before evaluation:** sampling rate (resample everything to
 16 kHz before scoring), duration vs. original, clipping, reproducibility (same
 seed → same output), listening check.
 
-**Reproducibility record** (fill in when installed; Seed-VC has changed a lot
-since the 2024 paper):
+Results of these checks (M4):
+- **Sampling rate:** 22.05 kHz output, resampled to 16 kHz by the
+  evaluation.
+- **Duration:** 3140.7 s out for 3143.0 s in, so timing is kept.
+- **Clipping:** the BigVGAN vocoder clamps its output to ±1. Higher CFG
+  gives louder output: 0 / 337 / 396 of 400 utterances touch the clamp at
+  CFG 0.0 / 0.7 / 1.0, but only 0.008 % (CFG 0.7) and 0.09 % (CFG 1.0) of
+  samples per utterance (median). Outputs are saved as float WAV, so no
+  extra 16-bit clipping is added.
+- **Reproducibility:** a rerun in a fresh process gives the same output up
+  to 1 LSB of 16-bit quantisation.
+- **Listening:** samples are in `samples/`, still to be checked by ear.
+  ASR on the two demo utterances is error-free.
+
+**Reproducibility record**
 
 | Item | Value |
 |---|---|
-| Repo commit / release | TBD |
-| Model checkpoint | TBD |
-| Config file | TBD |
-| Random seed | TBD |
-| Inference command + all parameters | TBD |
-| Python / PyTorch / CUDA versions | TBD |
-| GPU | TBD |
+| Repo commit | `Plachtaa/seed-vc` @ `51383efd921027683c89e5348211d93ff12ac2a8` (2025-04-20), cloned into `third_party/seed-vc` |
+| Model checkpoints | V2 defaults downloaded by `load_checkpoints()`: `Plachta/Seed-VC` @ `257283f` (`v2/cfm_small.pth`, `v2/ar_base.pth`); `Plachta/ASTRAL-quantization` @ `4a2e967` (`bsq2048_light`, `bsq32_light`); `funasr/campplus` @ `e4b6ede`; `nvidia/bigvgan_v2_22khz_80band_256x` @ `633ff70`; `facebook/hubert-large-ll60k` @ `ff022d0`; `openai/whisper-small` @ `973afd2` |
+| Config file | `configs/v2/vc_wrapper.yaml` (22.05 kHz output) |
+| Random seed | `torch.manual_seed(5305)` before every utterance |
+| Inference command + all parameters | `python python/run_seedvc.py <cfg>`: `anonymization_only=True`, `convert_style=False`, `diffusion_steps=30`, `length_adjust=1.0`, `intelligibility_cfg_rate ∈ {0.0, 0.7, 1.0}`, `similarity_cfg_rate=0.7` (no effect), reference = 1 s silence, fp16 autocast for content features and fp32 for the diffusion model (as in `inference_v2.py`). Outputs saved as float WAV |
+| Python / PyTorch / CUDA versions | Python 3.10.21, PyTorch 2.8.0+cu128 (instead of the pinned 2.4.0, which cannot run on RTX 50-series GPUs), transformers 4.46.3; see `python/requirements-seedvc.txt` |
+| GPU | NVIDIA GeForce RTX 5070 Ti Laptop GPU (12 GB), driver 596.49 |
 
 **Target-conditioned conversion is secondary (Extension A only).** Converting
 towards a specific real person is *not* automatically anonymisation, because
@@ -224,7 +320,11 @@ question testable.
 2. **Ignorant attacker:** original enrollment → anonymised trial, for every
    anonymiser configuration.
 3. Scoring: cosine similarity between embeddings, then EER from the genuine
-   and impostor score sets.
+   and impostor score sets. Every waveform is first scaled to the same RMS
+   level, because WavLM-SV's feature extractor does not normalise its input
+   (an utterance vs. itself at −26 dB: cosine 0.985) and anonymisers change
+   the level. ECAPA and the ASR are level-invariant. This changed WavLM-SV
+   EERs by at most 0.2 points.
 4. Report **EER** as the main privacy metric. Cosine-similarity plots are
    diagnostics only. Raw cosine values are not comparable across attackers
    (WavLM-SV scores sit between about 0.4 and 1.0, ECAPA's between about
@@ -322,19 +422,20 @@ attacker does no better than chance.
 - [x] Check genuine and impostor scores are clearly separated
 
 **M2 – MATLAB LPC/McAdams anonymiser**
-- [ ] Framing → LPC → poles → McAdams warping → resynthesis → overlap-add
-- [ ] Verify α = 1 reconstructs the input (sanity check)
-- [ ] Waveform, spectrogram, LPC envelope plots, and original/anonymised audio
-- [ ] Batch-process trial list for 3–5 α values
+- [x] Framing → LPC → poles → McAdams warping → resynthesis → overlap-add
+- [x] Verify α = 1 reconstructs the input (sanity check): SNR 234 dB
+- [x] Waveform, spectrogram, LPC envelope plots, and original/anonymised audio
+- [x] Batch-process trial list for 3–5 α values (0.9, 0.8, 0.7, 0.6)
 
 **M3 – Classical privacy–utility trade-off**
-- [ ] For each α: ECAPA EER, WavLM EER, WER/ΔWER, F0 change, processing time
+- [x] For each α: ECAPA EER, WavLM EER, WER/ΔWER, processing time
+- [x] For each α: F0 change, voicing kept and spectral-envelope change
 
 **M4 – Seed-VC anonymisation-only**
-- [ ] Install, fill in reproducibility record (section 4.2)
-- [ ] Process the same trial utterances
-- [ ] Check sampling rate, duration, clipping, reproducibility, quality
-- [ ] Same evaluation as M3
+- [x] Install, fill in reproducibility record (section 4.2)
+- [x] Process the same trial utterances (intelligibility CFG 0.0 / 0.7 / 1.0)
+- [x] Check sampling rate, duration, clipping, reproducibility (listening check still to do by ear)
+- [x] Same evaluation as M3
 
 **M5 – Attacker comparison (main result)**
 - [ ] Figures 1 and 2
@@ -449,3 +550,24 @@ system really provide when the attacker changes?"* Topics to cover:
   - Original-speech baseline: ECAPA EER 0.25 %, WavLM-SV EER 3.26 %, WER
     1.73 %. A rerun gave identical scores.
   - `.gitignore` now keeps `data/lists/` and `results/` in the repository.
+- **2026-10-01**: M2 done, M3 partly done.
+  - `matlab/mcadams_anon.m` and `mcadams_warp.m`, with a self-check
+    (α = 1 → SNR 234 dB). Outputs match a re-implementation of the
+    VoicePrivacy reference.
+  - All 400 trials anonymised at α = 0.9, 0.8, 0.7 and 0.6, at about 0.02 s
+    of CPU time per second of audio.
+  - Example figures for two utterances in `results/figures/`, listening
+    samples in `samples/`.
+  - EER and WER for all four α (table above).
+- **2026-10-01**: M3 and M4 done.
+  - `python/acoustics.py`: F0 shift, F0 contour correlation, voicing kept
+    and LPC-envelope distance per condition.
+  - Seed-VC (`Plachtaa/seed-vc` @ `51383ef`) in its own conda env with
+    PyTorch cu128. Found in the code: `similarity_cfg_rate` has no effect in
+    anonymisation-only mode, so intelligibility CFG (0.0 / 0.7 / 1.0) is the
+    controlled axis. A silent reference is used, and outputs are saved as
+    float WAV.
+  - `python/evaluate.py` now scales every waveform to a fixed RMS before
+    scoring (WavLM-SV is not level-invariant). Earlier conditions were
+    re-evaluated; WavLM-SV EERs changed by at most 0.2 points.
+  - Seed-VC listening samples added to `samples/`.
