@@ -2,9 +2,13 @@
 
     python python/evaluate.py original                             # LibriSpeech trial audio
     python python/evaluate.py mcadams_0.8 data/anon/mcadams_0.8    # folder of <utt>.wav, any rate
+    python python/evaluate.py mcadams_0.8 data/anon/mcadams_0.8 lazy
 
-Enrollment is always original speech (ignorant attacker). Writes results/scores/<cond>.csv,
+Default: ignorant attacker, enrollment is original speech. Writes results/scores/<cond>.csv,
 results/asr/<cond>.csv, results/figures/scores_<cond>.png and one row of results/summary.csv.
+"lazy": lazy-informed attacker (M7), enrollment anonymised with the same system (its files are in
+the same folder), ASV models not retrained. Only the attackers are rerun, since the trials and so the
+WER are unchanged; writes results/scores/<cond>_lazy.csv, the histogram and results/summary_lazy.csv.
 """
 import sys
 from pathlib import Path
@@ -91,12 +95,15 @@ def plot(pairs, summary, cond):
 
 
 @torch.inference_mode()
-def main(cond, wav_dir=None):
+def main(cond, wav_dir=None, attacker="ignorant"):
+    lazy = attacker == "lazy"
     enroll = pd.read_csv(LISTS / "enroll.csv", dtype=str)
     trials = pd.read_csv(LISTS / "trials.csv", dtype=str)
     pairs = pd.read_csv(LISTS / "pairs.csv", dtype={"trial": str, "model_spk": str})
-    enroll_wav = {u: load(libri(u)) for u in enroll.utt}
+    enroll_wav = {u: load(Path(wav_dir) / f"{u}.wav" if lazy else libri(u)) for u in enroll.utt}
     trial_wav = {u: load(Path(wav_dir) / f"{u}.wav" if wav_dir else libri(u)) for u in trials.utt}
+    if lazy:
+        cond = f"{cond}_lazy"
 
     summary = {"condition": cond}
     for name, make in [("ecapa", ecapa), ("wavlm", wavlm)]:
@@ -109,16 +116,17 @@ def main(cond, wav_dir=None):
         pairs[name] = [float(emb[u] @ models[s]) for u, s in zip(pairs.trial, pairs.model_spk)]
         summary[f"{name}_eer"] = round(float(eer(pairs[name], pairs.target)), 2)
 
-    rec = asr()
-    hyp = pd.DataFrame({"utt": trials.utt, "ref": trials.text, "hyp": [rec(trial_wav[u]) for u in trials.utt]})
-    hyp["wer"] = [round(jiwer.wer(r, h), 4) for r, h in zip(hyp.ref, hyp.hyp)]
-    summary["wer"] = round(100 * jiwer.wer(list(hyp.ref), list(hyp.hyp)), 2)
-
     for sub in ("scores", "asr", "figures"):
         (RES / sub).mkdir(parents=True, exist_ok=True)
+    if not lazy:
+        rec = asr()
+        hyp = pd.DataFrame({"utt": trials.utt, "ref": trials.text, "hyp": [rec(trial_wav[u]) for u in trials.utt]})
+        hyp["wer"] = [round(jiwer.wer(r, h), 4) for r, h in zip(hyp.ref, hyp.hyp)]
+        summary["wer"] = round(100 * jiwer.wer(list(hyp.ref), list(hyp.hyp)), 2)
+        hyp.to_csv(RES / "asr" / f"{cond}.csv", index=False)
+
     pairs.round(4).to_csv(RES / "scores" / f"{cond}.csv", index=False)
-    hyp.to_csv(RES / "asr" / f"{cond}.csv", index=False)
-    path = RES / "summary.csv"
+    path = RES / ("summary_lazy.csv" if lazy else "summary.csv")
     rows = [r for r in (pd.read_csv(path).to_dict("records") if path.exists() else []) if r["condition"] != cond]
     pd.DataFrame(rows + [summary]).to_csv(path, index=False)
     plot(pairs, summary, cond)

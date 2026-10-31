@@ -1,0 +1,9 @@
+condition,ecapa_eer,wavlm_eer
+original_backend,1.25,4.3
+mcadams_0.9_backend,1.74,4.74
+mcadams_0.8_backend,3.53,7.31
+mcadams_0.7_backend,7.0,11.5
+mcadams_0.6_backend,10.23,15.75
+seedvc_cfg0.0_backend,45.04,43.03
+seedvc_cfg0.7_backend,42.27,40.8
+seedvc_cfg1.0_backend,40.0,39.75

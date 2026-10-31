@@ -1,8 +1,10 @@
-"""Seed-VC V2 in anonymization-only mode for every trial utterance (README §4.2, M4).
+"""Seed-VC V2 in anonymization-only mode for every utterance of a list (README §4.2, M4).
 
 Runs in the "seedvc" conda env (python/requirements-seedvc.txt), from the repository root:
 
-    python python/run_seedvc.py 0.7      # intelligibility CFG rate -> data/anon/seedvc_cfg0.7/<utt>.wav
+    python python/run_seedvc.py 0.7          # intelligibility CFG rate, trials -> data/anon/seedvc_cfg0.7/<utt>.wav
+    python python/run_seedvc.py 0.7 enroll   # enrollment, for the lazy-informed attacker (M7)
+    python python/run_seedvc.py 0.7 backend  # dev-clean, for the informed backend (M7)
 
 Pretrained checkpoints only, no training. In anonymization-only mode Seed-VC zeroes the reference
 speaker prompt and style vector (modules/v2/cfm.py, random_voice branch), so similarity_cfg_rate has
@@ -50,20 +52,21 @@ def convert(m, src, ref, cfg_rate):
     return full  # (sample rate, waveform) of the whole utterance, from the last chunk
 
 
-def main(cfg_rate, *utts):
+def main(cfg_rate, list_name="trials"):
     cfg_rate = float(cfg_rate)
     cond = f"seedvc_cfg{cfg_rate}"
     out = ROOT / "data/anon" / cond
     out.mkdir(parents=True, exist_ok=True)
     ref = ROOT / "data/anon/silence_1s.wav"
     sf.write(ref, np.zeros(22050, dtype="float32"), 22050)
-    utts = utts or [r["utt"] for r in csv.DictReader(open(ROOT / "data/lists/trials.csv"))]
+    rows = list(csv.DictReader(open(ROOT / f"data/lists/{list_name}.csv")))
 
     m = load()
     audio_s = out_s = proc_s = clipped = 0
-    for u in utts:
+    for r in rows:
+        u = r["utt"]
         spk, chap, _ = u.split("-")
-        src = ROOT / "data/raw/LibriSpeech/test-clean" / spk / chap / f"{u}.flac"
+        src = ROOT / "data/raw/LibriSpeech" / r.get("subset", "test-clean") / spk / chap / f"{u}.flac"
         t = time.time()
         sr, y = convert(m, src, ref, cfg_rate)
         torch.cuda.synchronize()
@@ -72,7 +75,9 @@ def main(cfg_rate, *utts):
         out_s += len(y) / sr
         clipped += int(np.abs(y).max() >= 0.999)  # BigVGAN clamps its output to +-1
         sf.write(out / f"{u}.wav", y, sr, subtype="FLOAT")
-    print(f"{cond}: {audio_s:.0f} s in, {out_s:.0f} s out, {proc_s:.0f} s, {clipped} clipped utterances")
+    print(f"{cond} ({list_name}): {audio_s:.0f} s in, {out_s:.0f} s out, {proc_s:.0f} s, {clipped} clipped utterances")
+    if list_name != "trials":
+        return
 
     path = ROOT / "results/timing_seedvc.csv"
     rows = [r for r in (csv.DictReader(open(path)) if path.exists() else []) if r["condition"] != cond]
