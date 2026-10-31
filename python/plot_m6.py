@@ -1,6 +1,6 @@
 """M6 figures (README §8): 3 acoustic change vs. privacy, 4 example analysis, 5 speaker-level risk.
 
-    python python/plot_m6.py        # after analyse_m6.py has cached results/acoustics/original_f0.csv
+    python python/plot_m6.py        # after analyze_m6.py has cached results/acoustics/original_f0.csv
 """
 import librosa
 import matplotlib
@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 
 from acoustics import f0
-from analyse_m6 import RES, ROOT, far5_z, rho, table, trial_z, trials
+from analyze_m6 import RES, ROOT, far5_z, rho, table, trial_z, trials
 from evaluate import NAMES
 
 matplotlib.use("Agg")

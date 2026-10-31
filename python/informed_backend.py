@@ -1,14 +1,14 @@
-"""M7: lazy-informed attacker plus a backend trained on its own anonymised speech. This approximates a
+"""M7: lazy-informed attacker plus a backend trained on its own anonymized speech. This approximates a
 semi-informed attacker without retraining the neural models.
 
     python python/informed_backend.py original                             # reference: original speech
-    python python/informed_backend.py mcadams_0.8 data/anon/mcadams_0.8    # anonymised backend data,
+    python python/informed_backend.py mcadams_0.8 data/anon/mcadams_0.8    # anonymized backend data,
                                                                            # enrollment and trials
 
-The attacker anonymises its own data with the same system and settings: data/lists/backend.csv,
+The attacker anonymizes its own data with the same system and settings: data/lists/backend.csv,
 20 utterances of each of the 40 dev-clean speakers (disjoint from the test speakers). It trains an
 LDA (scikit-learn, shrinkage, 39 dimensions) on the frozen unit-length embeddings with speaker labels.
-Enrollment and trial embeddings are projected, length-normalised and scored by cosine. Writes
+Enrollment and trial embeddings are projected, length-normalized and scored by cosine. Writes
 results/scores/<cond>_backend.csv and one row of results/summary_backend.csv.
 """
 import sys

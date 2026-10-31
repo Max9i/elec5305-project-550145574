@@ -25,12 +25,12 @@ word different out of 400 utterances ("HONOR" vs. "HONOUR", WER 1.72 → 1.73 %)
 | Script | Purpose |
 |---|---|
 | `make_lists.py` | builds `data/lists/` once (see `data/README.md`); `backend.csv` only if dev-clean is present |
-| `run_seedvc.py <cfg> [trials\|enroll\|backend]` | Seed-VC V2 anonymisation-only for every utterance of the list → `data/anon/seedvc_cfg<cfg>/`; for trials also `results/timing_seedvc.csv` |
-| `evaluate.py <condition> [wav_dir] [lazy]` | ECAPA EER, WavLM-SV EER and ASR WER for one condition; `lazy`: lazy-informed attacker (anonymised enrollment from `wav_dir`, attackers only) → `results/summary_lazy.csv`, `results/scores/<condition>_lazy.csv` |
+| `run_seedvc.py <cfg> [trials\|enroll\|backend]` | Seed-VC V2 anonymization-only for every utterance of the list → `data/anon/seedvc_cfg<cfg>/`; for trials also `results/timing_seedvc.csv` |
+| `evaluate.py <condition> [wav_dir] [lazy]` | ECAPA EER, WavLM-SV EER and ASR WER for one condition; `lazy`: lazy-informed attacker (anonymized enrollment from `wav_dir`, attackers only) → `results/summary_lazy.csv`, `results/scores/<condition>_lazy.csv` |
 | `acoustics.py <condition> <wav_dir>` | F0 shift, F0 correlation, voicing kept and LPC-envelope distance vs. the original |
-| `informed_backend.py <condition> [wav_dir]` | M7: lazy-informed attacker plus an LDA backend trained on the attacker's own anonymised dev-clean speech → `results/summary_backend.csv`, `results/scores/<condition>_backend.csv` |
+| `informed_backend.py <condition> [wav_dir]` | M7: lazy-informed attacker plus an LDA backend trained on the attacker's own anonymized dev-clean speech → `results/summary_backend.csv`, `results/scores/<condition>_backend.csv` |
 | `plot_m5.py` | M5: Figures 1 and 2, speaker-bootstrap EER intervals, attacker gap and ranking comparison (printed) |
-| `analyse_m6.py` | M6 statistics (printed): identified-trial categories, speaker-level agreement, feature correlations, session-cue check |
+| `analyze_m6.py` | M6 statistics (printed): identified-trial categories, speaker-level agreement, feature correlations, session-cue check |
 | `plot_m6.py` | M6: Figures 3, 4 and 5 |
 | `test_eer.py`, `test_acoustics.py` | self-checks of the EER function and the acoustic measures |
 
@@ -57,19 +57,31 @@ Outputs:
 |---|---|---|
 | Attacker A | `speechbrain/spkrec-ecapa-voxceleb` | `0f99f2d` |
 | Attacker B | `microsoft/wavlm-base-plus-sv` | `feb593a` |
-| ASR | `facebook/wav2vec2-large-960h-lv60-self`, greedy CTC decoding. Its output is already in LibriSpeech's upper-case transcript format, so no text normalisation is needed | `54074b1` |
+| ASR | `facebook/wav2vec2-large-960h-lv60-self`, greedy CTC decoding. Its output is already in LibriSpeech's upper-case transcript format, so no text normalization is needed | `54074b1` |
 
 Speaker model = mean of the unit-length enrollment embeddings. Score = cosine similarity between
 the trial embedding and the speaker model. Every waveform is scaled to the same RMS level before
-scoring, because WavLM-SV's feature extractor does not normalise its input.
+scoring, because WavLM-SV's feature extractor does not normalize its input.
+
+## Seed-VC settings
+
+- Code: `Plachtaa/seed-vc` @ `51383ef`, config `configs/v2/vc_wrapper.yaml` (22.05 kHz output).
+- Checkpoints (V2 defaults from `load_checkpoints()`): `Plachta/Seed-VC` @ `257283f`,
+  `Plachta/ASTRAL-quantization` @ `4a2e967`, `funasr/campplus` @ `e4b6ede`,
+  `nvidia/bigvgan_v2_22khz_80band_256x` @ `633ff70`, `facebook/hubert-large-ll60k` @ `ff022d0`,
+  `openai/whisper-small` @ `973afd2`.
+- `anonymization_only=True`, `convert_style=False`, `diffusion_steps=30`, `length_adjust=1.0`,
+  intelligibility CFG 0.0 / 0.7 / 1.0 (`similarity_cfg_rate` has no effect in this mode),
+  reference = 1 s of silence, `torch.manual_seed(5305)` before every utterance. Outputs saved as float WAV.
+- Python 3.10.21, PyTorch 2.8.0+cu128, transformers 4.46.3, RTX 5070 Ti Laptop GPU (12 GB).
 
 ## Acoustic measures (`acoustics.py`)
 
-Original and anonymised frames are matched by position: the anonymised frame grid is linearly
+Original and anonymized frames are matched by position: the anonymized frame grid is linearly
 stretched onto the original's. This is exact for McAdams, and Seed-VC keeps the duration with
 style conversion off.
 
 - `f0_shift_st`: median F0 change in semitones over frames voiced in both (pYIN, 50–500 Hz)
 - `f0_corr`: correlation of log-F0 over the same frames, i.e. whether the intonation shape is kept
-- `env_lsd_db`: RMS dB difference between the gain-normalised order-20 LPC envelopes 1/|A| of
+- `env_lsd_db`: RMS dB difference between the gain-normalized order-20 LPC envelopes 1/|A| of
   20 ms frames, averaged over frames within 40 dB of the loudest original frame

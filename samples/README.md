@@ -8,5 +8,5 @@ Short listening examples. Both utterances are trial utterances from `data/lists/
 | `61-70968-0017` | male (61) | same set |
 
 - McAdams files are 16 kHz WAV, made by `matlab/demo_mcadams.m`.
-- Seed-VC files are 22.05 kHz, 16-bit copies of `data/anon/seedvc_cfg<cfg>/<utt>.wav` (anonymisation-only
+- Seed-VC files are 22.05 kHz, 16-bit copies of `data/anon/seedvc_cfg<cfg>/<utt>.wav` (anonymization-only
   mode, `python/run_seedvc.py`).

@@ -1,6 +1,6 @@
 """M6 privacy-failure analysis: which trials and speakers stay identifiable, to which attacker, and why.
 
-    python python/analyse_m6.py
+    python python/analyze_m6.py
 
 Each genuine trial score is turned into a z-score against the impostor scores of the same condition,
 attacker and sex (impostor pairs are same-sex, and raw cosines are not comparable across attackers).
@@ -73,7 +73,7 @@ def trials():
 
 
 def table(cond):
-    """Trials plus acoustic change and identifiability for one anonymised condition."""
+    """Trials plus acoustic change and identifiability for one anonymized condition."""
     ac = pd.read_csv(RES / "acoustics" / f"{cond}.csv", dtype={"utt": str}).set_index("utt")
     d = trials().join(ac).join(trial_z(cond)).join(trial_z("original").add_suffix("_orig"))
     d["f0_anon_hz"] = d.f0_hz * 2 ** (d.f0_shift_st / 12)  # median output F0, from the median shift
@@ -98,7 +98,7 @@ def main():
               f"McAdams 0.8 vs Seed-VC 0.7 {rho(S['mcadams_0.8'][f'z_{a}'], S['seedvc_cfg0.7'][f'z_{a}']):+.2f}")
 
     # typicality: how similar a speaker's original voice is to the other same-sex speakers (mean impostor score
-    # of their model on original speech, z within sex) vs. how identifiable they stay after anonymisation
+    # of their model on original speech, z within sex) vs. how identifiable they stay after anonymization
     o = pd.read_csv(RES / "scores/original.csv", dtype={"trial": str, "model_spk": str})
     sex = tr.groupby("spk").sex.first()
     typ = o[o.target == 0].groupby("model_spk")[list(ATTACKERS)].mean()

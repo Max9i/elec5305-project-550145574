@@ -11,7 +11,21 @@ Thumbs.db
 # External code (Seed-VC is cloned here, see python/README.md)
 third_party/
 
-# Raw/anonymised audio and model caches stay local; the fixed trial lists are committed
+# Raw/anonymized audio and model caches stay local; the fixed trial lists are committed
 data/*
 !data/README.md
 !data/lists/
+
+# LaTeX build files
+report/*.aux
+report/*.bbl
+report/*.blg
+report/*.log
+report/*.out
+report/*.toc
+report/*.synctex.gz
+report/*.tex
+report/*.bib
+
+# Local project log (old full README), not for GitHub
+PROJECT_LOG.md

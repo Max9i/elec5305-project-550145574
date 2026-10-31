@@ -1,7 +1,7 @@
 """Build the fixed lists: enrollment/trials from LibriSpeech test-clean and, if dev-clean is present,
 the attacker's own data for the informed backend (M7) from dev-clean, whose speakers are disjoint.
 
-Run once and commit data/lists/. Every anonymiser and attacker reuses these lists.
+Run once and commit data/lists/. Every anonymizer and attacker reuses these lists.
 """
 import random
 from pathlib import Path

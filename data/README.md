@@ -1,6 +1,6 @@
 # Data
 
-Raw and anonymised audio stay local (gitignored). Only `lists/` is committed.
+Raw and anonymized audio stay local (gitignored). Only `lists/` is committed.
 
 ## LibriSpeech test-clean
 
@@ -18,8 +18,8 @@ lists, so do not regenerate them unless the protocol is changed on purpose.
 | File | Content |
 |---|---|
 | `speakers.csv` | all 40 test-clean speakers (20 F, 20 M) |
-| `enroll.csv` | 5 utterances per speaker (200 total). Original for the ignorant attacker; anonymised only for the informed attackers (M7) |
-| `trials.csv` | 10 other utterances per speaker (400 total, 0.87 h) with reference transcripts. These are anonymised |
+| `enroll.csv` | 5 utterances per speaker (200 total). Original for the ignorant attacker; anonymized only for the informed attackers (M7) |
+| `trials.csv` | 10 other utterances per speaker (400 total, 0.87 h) with reference transcripts. These are anonymized |
 | `backend.csv` | M7 only: 20 utterances of each of the 40 dev-clean speakers (disjoint from test-clean), the attacker's own data for the informed backend. Needs `dev-clean.tar.gz` (337 MB, md5 42e2234ba48799c1f50f24a7926300a1) extracted next to test-clean |
 | `pairs.csv` | every trial against every same-sex speaker model: 400 target + 7600 impostor pairs |
 
@@ -32,5 +32,5 @@ session/channel similarity. Keep this in mind when interpreting the results.
 | Folder | Content |
 |---|---|
 | `raw/` | LibriSpeech test-clean and dev-clean |
-| `anon/<condition>/<utt>.wav` | anonymised audio: every utterance of `trials.csv`, plus `enroll.csv` and `backend.csv` for M7 |
+| `anon/<condition>/<utt>.wav` | anonymized audio: every utterance of `trials.csv`, plus `enroll.csv` and `backend.csv` for M7 |
 | `models/` | local copy of the SpeechBrain ECAPA model |

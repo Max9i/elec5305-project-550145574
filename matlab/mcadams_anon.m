@@ -1,8 +1,8 @@
 function y = mcadams_anon(x, fs, alpha)
-%MCADAMS_ANON Speaker anonymisation with the McAdams coefficient (Patino et al., Interspeech 2021).
+%MCADAMS_ANON Speaker anonymization with the McAdams coefficient (Patino et al., Interspeech 2021).
 %   y = mcadams_anon(x, fs, alpha) cuts mono speech x into 20 ms frames with a 10 ms hop, fits an
 %   order-20 LPC model A(z) to each frame, keeps the residual e[n] = A(z)s[n] (excitation, so F0
-%   and timing), warps the pole angles of 1/A(z) with mcadams_warp and resynthesises e[n]/A'(z)
+%   and timing), warps the pole angles of 1/A(z) with mcadams_warp and resynthesizes e[n]/A'(z)
 %   with weighted overlap-add. alpha = 1 returns x up to rounding error.
 H = round(0.010 * fs); N = 2 * H; p = 20;
 w = sqrt(hann(N, 'periodic'));                 % analysis = synthesis window: w.^2 overlap-adds to 1

@@ -25,7 +25,7 @@ N = round(0.02 * fs);
 
 fig = figure('Visible', 'off', 'Position', [0 0 1300 620], 'Color', '#fcfcfb');
 tl = tiledlayout(fig, 2, 3, 'TileSpacing', 'compact', 'Padding', 'compact');
-title(tl, utt + ": LPC/McAdams anonymisation");
+title(tl, utt + ": LPC/McAdams anonymization");
 sig = {x, Y{2}};
 name = ["original", "\alpha = 0.8"];
 S = cell(1, 2);

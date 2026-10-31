@@ -1,4 +1,4 @@
-% Anonymise every utterance of a list with McAdams, for each alpha.
+% Anonymize every utterance of a list with McAdams, for each alpha.
 % Writes data/anon/mcadams_<alpha>/<utt>.wav, and results/timing_mcadams.csv for the trial list.
 %   matlab -batch "cd matlab; run_mcadams"                      % trials (default)
 %   matlab -batch "cd matlab; list = 'enroll'; run_mcadams"     % enrollment, for the lazy-informed attacker

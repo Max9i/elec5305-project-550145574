@@ -6,7 +6,7 @@
 
 Default: ignorant attacker, enrollment is original speech. Writes results/scores/<cond>.csv,
 results/asr/<cond>.csv, results/figures/scores_<cond>.png and one row of results/summary.csv.
-"lazy": lazy-informed attacker (M7), enrollment anonymised with the same system (its files are in
+"lazy": lazy-informed attacker (M7), enrollment anonymized with the same system (its files are in
 the same folder), ASV models not retrained. Only the attackers are rerun, since the trials and so the
 WER are unchanged; writes results/scores/<cond>_lazy.csv, the histogram and results/summary_lazy.csv.
 """
@@ -51,8 +51,8 @@ def libri(utt):
 
 
 def load(path):
-    """Mono float32 at 16 kHz, scaled to a fixed RMS: WavLM-SV's feature extractor does not normalise
-    its input (an utterance vs. itself at -26 dB: cosine 0.985), and anonymisers change the level."""
+    """Mono float32 at 16 kHz, scaled to a fixed RMS: WavLM-SV's feature extractor does not normalize
+    its input (an utterance vs. itself at -26 dB: cosine 0.985), and anonymizers change the level."""
     x = librosa.load(path, sr=SR)[0]
     return 0.05 * x / (np.sqrt(np.mean(x ** 2)) + 1e-9)
 

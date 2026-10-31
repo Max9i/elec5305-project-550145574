@@ -1,13 +1,13 @@
-"""Acoustic change between original and anonymised trial utterances (README §6, M3).
+"""Acoustic change between original and anonymized trial utterances (README §6, M3).
 
     python python/acoustics.py mcadams_0.8 data/anon/mcadams_0.8
 
-Frames are matched by position: the anonymised frame grid is linearly stretched onto the
+Frames are matched by position: the anonymized frame grid is linearly stretched onto the
 original's, which is exact for McAdams and tolerates small duration changes. Per utterance:
   f0_shift_st  median F0 change (semitones) over frames voiced in both (pYIN, 50-500 Hz)
   f0_corr      correlation of log-F0 over the same frames (is the intonation shape kept?)
   voiced_kept  share of the original's voiced frames that are still voiced (harmonicity kept?)
-  env_lsd_db   RMS dB difference between the gain-normalised order-20 LPC envelopes 1/|A|,
+  env_lsd_db   RMS dB difference between the gain-normalized order-20 LPC envelopes 1/|A|,
                averaged over frames within 40 dB of the loudest original frame
 Writes results/acoustics/<cond>.csv and one row of results/acoustics.csv (medians over utterances
 for the F0 measures, which pYIN octave errors would skew, means for the others).

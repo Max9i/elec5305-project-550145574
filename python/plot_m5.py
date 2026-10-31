@@ -29,7 +29,7 @@ INK, MUTED = "#52514e", "#898781"
 summary = pd.read_csv(RES / "summary.csv").set_index("condition")
 summary["dwer"] = summary.wer - summary.wer["original"]
 conds = list(summary.index)
-# M7: lazy-informed attacker (anonymised enrollment) and lazy-informed + adapted backend, if evaluated;
+# M7: lazy-informed attacker (anonymized enrollment) and lazy-informed + adapted backend, if evaluated;
 # bootstrapped with the same draws
 read = lambda name: pd.read_csv(RES / name).set_index("condition") if (RES / name).exists() else None
 lazy, informed = read("summary_lazy.csv"), read("summary_backend.csv")
@@ -142,9 +142,9 @@ fig.savefig(RES / "figures" / "fig2_attacker_disagreement.png", dpi=200)
 if lazy is not None:
     anon = [c for _, _, members in SYSTEMS for c, _ in members]
     stages = [("", "o", True, "ignorant (original enrollment)"),
-              ("_lazy", "o", False, "lazy-informed (anonymised enrollment)")]
+              ("_lazy", "o", False, "lazy-informed (anonymized enrollment)")]
     if informed is not None:
-        stages.append(("_backend", "s", False, "lazy-informed + backend trained on own anonymised speech"))
+        stages.append(("_backend", "s", False, "lazy-informed + backend trained on own anonymized speech"))
     for (s0, *_), (s1, *_) in zip(stages, stages[1:]):
         print(f"\n{s1[1:]} minus {s0[1:] or 'ignorant'} EER (paired speaker bootstrap, 95 % CI):")
         for c in anon:

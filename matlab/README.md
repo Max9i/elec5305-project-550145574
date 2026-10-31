@@ -1,13 +1,13 @@
 # MATLAB
 
-Classical LPC/McAdams anonymiser (M2). Needs MATLAB R2026a and the Signal Processing Toolbox (`lpc`).
+Classical LPC/McAdams anonymizer (M2). Needs MATLAB R2026a and the Signal Processing Toolbox (`lpc`).
 
 | File | Purpose |
 |---|---|
 | `mcadams_anon.m` | `y = mcadams_anon(x, fs, alpha)`: framing, LPC, residual, pole warping, resynthesis, overlap-add |
 | `mcadams_warp.m` | `aNew = mcadams_warp(a, alpha)`: moves the complex LPC poles from angle φ to φ^α, keeping their radius |
 | `test_mcadams.m` | self-check: radii kept, angles mapped to φ^α, α = 1 reconstructs the input |
-| `run_mcadams.m` | anonymises every utterance of a list (default trials; `list = 'enroll'` for M7) for α = 0.9, 0.8, 0.7, 0.6 → `data/anon/mcadams_<α>/<utt>.wav`, plus `results/timing_mcadams.csv` for trials |
+| `run_mcadams.m` | anonymizes every utterance of a list (default trials; `list = 'enroll'` for M7) for α = 0.9, 0.8, 0.7, 0.6 → `data/anon/mcadams_<α>/<utt>.wav`, plus `results/timing_mcadams.csv` for trials |
 | `demo_mcadams.m` | example analysis of one utterance → `samples/<utt>_*.wav` and `results/figures/mcadams_<utt>.png` |
 
 Run from the repository root:
