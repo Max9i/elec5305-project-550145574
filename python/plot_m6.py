@@ -1,4 +1,4 @@
-"""M6 figures (README §8): 3 acoustic change vs. privacy, 4 example analysis, 5 speaker-level risk.
+"""M6 figures: 3 acoustic change vs. privacy, 4 example analysis, 5 speaker-level risk.
 
     python python/plot_m6.py        # after analyze_m6.py has cached results/acoustics/original_f0.csv
 """

@@ -1,4 +1,4 @@
-"""Acoustic change between original and anonymized trial utterances (README §6, M3).
+"""Acoustic change between original and anonymized trial utterances (M3).
 
     python python/acoustics.py mcadams_0.8 data/anon/mcadams_0.8
 

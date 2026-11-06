@@ -1,6 +1,6 @@
-"""Seed-VC V2 in anonymization-only mode for every utterance of a list (README §4.2, M4).
+"""Seed-VC V2 in anonymization-only mode for every utterance of a list (M4).
 
-Runs in the "seedvc" conda env (python/requirements-seedvc.txt), from the repository root:
+Runs in the "seedvc" conda env (python/requirements.txt), from the repository root:
 
     python python/run_seedvc.py 0.7          # intelligibility CFG rate, trials -> data/anon/seedvc_cfg0.7/<utt>.wav
     python python/run_seedvc.py 0.7 enroll   # enrollment, for the lazy-informed attacker (M7)

@@ -1,5 +1,5 @@
 function demo_mcadams(utt)
-%DEMO_MCADAMS Example analysis of one utterance (README M2).
+%DEMO_MCADAMS Example analysis of one utterance.
 %   demo_mcadams("121-127105-0006") writes samples/<utt>_original.wav and
 %   samples/<utt>_mcadams_<alpha>.wav, plus results/figures/mcadams_<utt>.png with the waveform and
 %   spectrogram (original vs. alpha = 0.8), the LPC poles of the loudest frame before and after

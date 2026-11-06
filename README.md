@@ -48,7 +48,7 @@ Setup details for each part are in [`data/README.md`](data/README.md),
 [`python/README.md`](python/README.md). Short version, from the repo root:
 
 ```bash
-# 1. data: download LibriSpeech test-clean into data/raw/ (lists in data/lists/ are fixed)
+# 1. data: download LibriSpeech test-clean into data/raw/
 # 2. baseline on original speech
 python python/evaluate.py original
 # 3. McAdams (MATLAB), then evaluate one setting
@@ -70,7 +70,7 @@ python/    Seed-VC runs, attackers, ASR, acoustic measures, plots
 data/      download instructions and the fixed trial lists
 results/   CSV results and figures
 samples/   original vs. anonymized audio examples
-report/    LaTeX report
+report/    final report (PDF)
 ```
 
 ## Main references

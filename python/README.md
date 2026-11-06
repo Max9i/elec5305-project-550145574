@@ -9,16 +9,8 @@ One conda env, `seedvc` (Python 3.10). The RTX 50-series GPU needs a CUDA 12.8 b
 ```bash
 git clone https://github.com/Plachtaa/seed-vc third_party/seed-vc   # then: git checkout 51383ef
 pip install torch==2.8.0 torchaudio==2.8.0 --index-url https://download.pytorch.org/whl/cu128
-pip install -r python/requirements-seedvc.txt
+pip install -r python/requirements.txt
 ```
-
-Seed-VC's own requirements pin PyTorch 2.4.0 (cu121), which cannot run on this GPU, so PyTorch is
-replaced and only the packages needed for inference are installed.
-
-The committed results up to M4 were produced in an earlier env, `py5305` (Python 3.12,
-transformers 5.18, SpeechBrain 1.1.1, librosa 0.11; `python/requirements.txt`). Rerunning the
-original-speech baseline in `seedvc` gives the same EERs, cosine scores within 0.0002, and one ASR
-word different out of 400 utterances ("HONOR" vs. "HONOUR", WER 1.72 → 1.73 %).
 
 ## Scripts
 
